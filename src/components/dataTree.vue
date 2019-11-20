@@ -2,7 +2,7 @@
   <div class="DataTreewrap">
     <Navslide></Navslide>
     <div class="DataTreebox">
-      <div class="navbox">欢迎您，管理员</div>
+     <Exitnav></Exitnav>
       <div class="twobox">
         <dl>
           <dt>教练：</dt>
@@ -17,14 +17,23 @@
           <h3>运动数据统计</h3>
           <div class="healthone">
               <div class="healthleft">
-                <h3>healthone系统运动时间统计</h3>
+                <div class="sport">
+                <h3>动感平衡台运动时间统计</h3>
+                <el-select v-model="value" placeholder="请选择" @change='select' style="width:100px">
+                    <el-option
+                      v-for="item in options"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.label">
+                    </el-option>
+                  </el-select>
+              </div>
                 <div id="myChart" :style="{width: '100%', height: '400px'}"></div>
               </div>
             <div class="healthRight">
               <h3>运动员运动时间排行</h3>
               <ul>
-                <li><p><span class="num">1</span> <span>张明明</span></p> <span>322分钟</span>  </li>
-                <li><p><span class="num">2</span> <span>李明明</span></p> <span>32分钟</span>  </li>
+                <li v-for='(item,index) in rankList'><p><span class="num">{{index+1}}</span> <span>{{item.username}}</span></p> <span>{{item.times}}分钟</span></li>
               </ul>
             </div>
           </div>
@@ -36,33 +45,67 @@
 
 <script>
   import Navslide from '@/components/navslide.vue'
-  import { chartStatistics,peopleCounting } from '@/api/index'
+  import Exitnav from '@/components/exitnav.vue'
+  import { chartStatistics,peopleCounting,rank } from '@/api/index'
 
   export default {
     name: 'DataTree',
     components: {
-      Navslide
+      Navslide,
+      Exitnav
     },
     data() {
       return {
+        num:0,
+        rankList:[],
         dataList:[],
         trainer: 0,
-        runner: 0
+        runner: 0,
+        options: [{
+          value: '选项1',
+          label: '2019'
+        }, {
+          value: '选项2',
+          label: '2020'
+        }, {
+          value: '选项3',
+          label: '2021'
+        }, {
+          value: '选项4',
+          label: '2022'
+        }, {
+          value: '选项5',
+          label: '2023'
+        }],
+        value: '2019'
       }
     },
     mounted(){
         this.drawLine();
+        this.getrank();
         this.getpeopleCount();
     },
     methods: {
+      getrank(){
+        rank().then((res)=>{
+          this.rankList = res.data.data
+        })
+      },
+      select(){
+        this.drawLine(this.value);
+        console.log(this.value)
+        // chartStatistics({year:this.value}).then((res) => {
+        //   this.dataList = res.data.data
+        // })
+      },
       getpeopleCount(){
         peopleCounting().then((res)=>{
           this.trainer = res.data.data.trainer
           this.runner = res.data.data.runner
         })
       },
-      async drawLine() {
-        await chartStatistics().then((res) => {
+      async drawLine(value) {
+        await chartStatistics({year:value}).then((res) => {
           this.dataList = res.data.data
         })
           .catch((err) => {
@@ -112,11 +155,22 @@
   }
 </script>
 <style scoped>
+  html,body{
+    width: 100%;
+    height: 100%;
+    overflow:auto
+  }
   .DataTreewrap {
     display: flex;
     width: 100%;
+    height: 100%;
   }
-
+  .sport{
+    display: flex;
+    justify-content: space-between;
+    padding-right: 30px;
+    box-sizing: border-box;
+  }
   .el-menu-vertical-demo {
     width: 250px;
     height: 100%;
@@ -133,18 +187,9 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    color: #fff;
-    background: rgb(52, 64, 88);
+    color: #3C4044;
+    background: rgba(240,242,245,1);
     border-radius: 50%;
-  }
-  .navbox {
-    height: 50px;
-    line-height: 50px;
-    display: flex;
-    justify-content: flex-end;
-    background: #fff;
-    padding-right: 20px;
-    box-sizing: border-box;
   }
 
   .DataTreebox h3 {
@@ -152,13 +197,20 @@
     line-height: 50px;
     padding-left: 20px;
     box-sizing: border-box;
-    border-bottom: solid 1px #ccc;
+    border-bottom: solid 1px #E7E8EF;
+    font-size:16px;
+font-family:PingFangSC-Medium,PingFang SC;
+font-weight:500;
+color:rgba(101,107,113,1);
   }
 .DataTreebottom{
+  /* height: 460px; */
   background: #fff;
   margin: 20px;
-  padding: 20px;
   box-sizing: border-box;
+  box-shadow:0px 1px 2px 0px rgba(0,21,41,0.12);
+  border-radius:2px;
+  border:1px solid rgba(230,235,239,1);
 }
 .healthone{
   display: flex;
@@ -170,7 +222,9 @@
   width: 70%;
 }
 .healthleft h3{
-  font-size: 18px;
+  height: 48px;
+  line-height: 48px;
+  font-size: 16px;
   font-weight: 100;
   border: 0;
 }
@@ -179,6 +233,7 @@
 }
 .healthRight h3{
   font-size: 18px;
+  padding: 0;
   font-weight: 100;
   border: 0;
 }
@@ -203,34 +258,43 @@
   }
 
   .twobox dl {
+    width:240px;
+    height:176px;
+    background:rgba(255,255,255,1);
+    box-shadow:0px 1px 2px 0px rgba(0,21,41,0.12);
+    border-radius:2px;
+    border:1px solid rgba(230,235,239,1);
     display: flex;
     flex-direction: column;
-    width: 250px;
-    height: 150px;
     padding: 20px;
     box-sizing: border-box;
-    border: solid 1px #ccc;
-    background: #fff;
     margin-right: 20px;
   }
 
   .twobox dl dt {
-    font-weight: 800;
-    font-size: 18px;
+    font-size:14px;
+font-family:PingFangSC-Medium,PingFang SC;
+font-weight:500;
+color:rgba(101,107,113,1);
   }
 
   .twobox dl dd {
     flex: 1;
     display: flex;
-    align-items: center;
+    align-items: baseline;
     justify-content: center;
-    font-size: 28px;
-    font-weight: 800;
+    font-size:46px;
+    margin-top: 30px;
+font-family:HelveticaNeue-Medium,HelveticaNeue;
+font-weight:500;
+color:rgba(60,64,68,1);
   }
 
   .twobox dl dd span {
-    font-size: 14px;
-    font-weight: 200;
     margin-left: 5px;
+    font-size:18px;
+font-family:PingFangSC-Regular,PingFang SC;
+font-weight:400;
+color:rgba(92,99,105,1);
   }
 </style>

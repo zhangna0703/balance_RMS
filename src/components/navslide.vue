@@ -1,8 +1,8 @@
 <template>
   <div>
+    <p class="wraptitle">动感平衡台后台管理系统</p>
     <el-menu :default-active="$route.path" class="el-menu-vertical-demo" @open="handleOpen" @close="handleClose"
       background-color="#344058" text-color="#D0D0D0" router>
-      <el-menu-item style="fontSize:19px;background-color: rgb(38,52,69);color: #fff;">动感平衡台后台管理系统</el-menu-item>
       <div v-for="item,index in mymenu" :key=index>
         <!--存在子菜单-->
         <el-submenu v-if="item.children" :index='item.name'>
@@ -41,7 +41,7 @@
             "pathUrl": "/DataTree",
             "pathIcon": "el-icon-s-data"
           }, {
-              "name": "教练列表",
+              "name": "教练管理",
               "pathUrl": "/Coach",
               "pathIcon": "el-icon-s-grid"
           }, {
@@ -67,7 +67,15 @@
   }
 </script>
 <style scoped>
-
+  .wraptitle{
+    font-size:19px;
+    height:64px;
+    background-color:#264C6F;
+    color: #fff;
+    text-align: center;
+    line-height: 64px;
+    border-right: solid 1px #e6e6e6;
+  }
   .el-menu-vertical-demo {
     width: 250px;
     height: 100%;

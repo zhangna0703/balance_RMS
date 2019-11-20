@@ -2,38 +2,45 @@
   <div class="passwrap">
     <Navslide></Navslide>
     <div class="passbox">
-      <div class="navbox">欢迎您，管理员</div>
-      <h3>密码修改</h3>
+      <Exitnav></Exitnav>
       <!-- 
         <el-input v-model="oldpwd" placeholder="请输入旧密码" show-password></el-input>
         <el-input v-model="newpwd" placeholder="请输入6—12位数字字母组合新密码" show-password></el-input>
         <el-input v-model="surepwd" placeholder="请确认6—12位数字字母组合新密码" show-password></el-input>
         <el-button type="primary">保存</el-button>
       </div> -->
-      <div class="box">
-        <el-form :model="ruleForm" :rules="rules" ref="ruleFormRef">
-          <el-form-item label="原密码" prop="pass">
-            <el-col :span="8">
-              <el-input v-model="ruleForm.pass" placeholder="请输入原密码" type="password"></el-input>
-            </el-col>
-          </el-form-item>
-          <el-form-item label="新密码" prop="newpass">
-            <el-col :span="8">
-              <el-input v-model="ruleForm.newpass" placeholder="请输入新密码" id="newkey" type="password"></el-input>
-            </el-col>
-          </el-form-item>
-          <el-form-item label="重复新密码" prop="checknewpass">
-            <el-col :span="8">
-              <el-input v-model="ruleForm.checknewpass" placeholder="请再次输入新密码" id='newkey1' type="password"></el-input>
-            </el-col>
-          </el-form-item>
-        </el-form>
-        <div class="grid-content bg-purple">
-          <el-button type="primary" @click="submitForm('ruleFormRef')">保存</el-button>
+      <div class="marginBox">
+        <div class="bigbox">
+          <h3>密码修改</h3>
+          <div class="box">
+            <el-form :model="ruleForm" :rules="rules" ref="ruleFormRef">
+              <el-form-item label="" prop="pass">
+                <el-col :span="8">
+                  <el-input v-model="ruleForm.pass" placeholder="请输入原密码" type="password"></el-input>
+                </el-col>
+              </el-form-item>
+              <el-form-item label="" prop="newpass">
+                <el-col :span="8">
+                  <el-input v-model="ruleForm.newpass" placeholder="请输入新密码" id="newkey" type="password"></el-input>
+                </el-col>
+              </el-form-item>
+              <el-form-item label="" prop="checknewpass">
+                <el-col :span="8">
+                  <el-input v-model="ruleForm.checknewpass" placeholder="请再次输入新密码" id='newkey1' type="password">
+                  </el-input>
+                </el-col>
+              </el-form-item>
+            </el-form>
+            <div class="grid-content bg-purple">
+              <el-button type="primary" @click="submitForm('ruleFormRef')">保存</el-button>
+            </div>
+            </el-tab-pane>
+          </div>
+
         </div>
-        </el-tab-pane>
+
       </div>
-     
+
 
     </div>
   </div>
@@ -41,6 +48,10 @@
 
 <script>
   import Navslide from '@/components/navslide.vue'
+  import Exitnav from '@/components/exitnav.vue'
+  import { editPass } from '@/api/index'
+
+
   export default {
     name: 'password',
     data() {
@@ -54,7 +65,7 @@
         }
       };
       return {
-        
+
         rules: {
           pass: [{ required: true, message: "请输入密码" }],
           newpass: [{ required: true, message: "请输入新密码" }],
@@ -68,18 +79,29 @@
       }
     },
     components: {
+      Exitnav,
       Navslide
     },
     methods: {
-      submitForm(item) {
+      async submitForm(item) {
         if (this.ruleForm.newpass == this.ruleForm.checknewpass) {
-          this.$message({
-            message: '修改成功',
-            type: 'success'
-          })
+          let data = {
+            oldPassword: this.ruleForm.pass,
+            newPassword: this.ruleForm.newpass
+          }
+          console.log(this.ruleForm.pass,this.ruleForm.newpass)
+          editPass(data).then((res) => {
+          console.log(data)
+          if (res.data.code == 200) {
+            this.$message({
+              message: '修改密码成功',
+              type: 'success'
+            })
+          }
+        })
         }
       }
-      
+
     },
   }
   // export default {
@@ -98,6 +120,16 @@
 
 </script>
 <style scoped>
+  .marginBox {
+    padding: 20px 24px;
+  }
+
+  .bigbox {
+    box-shadow: 0px 1px 2px 0px rgba(0, 21, 41, 0.12);
+    border-radius: 2px;
+    border: 1px solid rgba(230, 235, 239, 1);
+  }
+
   .passwrap {
     display: flex;
     width: 100%;
@@ -121,10 +153,15 @@
 
   .passbox h3 {
     height: 50px;
+    background: #fff;
+    padding-left: 30px;
     line-height: 50px;
-    padding-left: 20px;
-    box-sizing: border-box;
-    border-bottom: solid 1px #ccc;
+    border-bottom: solid 1px #E7E8EF;
+    /* margin-bottom: 20px; */
+    font-size: 16px;
+    font-family: PingFangSC-Medium, PingFang SC;
+    font-weight: 500;
+    color: rgba(101, 107, 113, 1);
   }
 
   .el-menu-vertical-demo {
@@ -135,7 +172,8 @@
   .passbox .box {
     display: flex;
     flex-direction: column;
-    padding: 20px 50px;
+    padding: 30px;
+    background: #fff;
     box-sizing: border-box;
   }
 
